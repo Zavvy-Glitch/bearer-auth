@@ -11,7 +11,7 @@ authRouter.post('/signup', async (req, res, next) => {
   try {
     let userRecord = await users.create(req.body);
     const output = {
-      user: userRecord,
+      users: userRecord,
       token: userRecord.token
     };
     res.status(200).json(output);
@@ -22,8 +22,8 @@ authRouter.post('/signup', async (req, res, next) => {
 
 authRouter.post('/signin', basicAuth, (req, res, next) => {
   const user = {
-    user: request.user,
-    token: request.user.token
+    user: req.users,
+    token: req.users.token
   };
   res.status(200).json(user);
 });
