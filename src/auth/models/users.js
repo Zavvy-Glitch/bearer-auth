@@ -1,9 +1,14 @@
 'use strict';
 
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { Sequelize, DataTypes } = require('sequelize');
 
-const userSchema = (sequelize, DataTypes) => {
-  const model = sequelize.define('User', {
+const SECRET = process.env.API_SECRET || 'supersecretsquirrel';
+
+const sequelize = new Sequelize(process.env.DATABASE_URL || 'sqlite::memory');
+
+const userSchema = sequelize.define('User', {
     username: { 
       type: DataTypes.STRING, 
       allowNull: false, 
@@ -14,18 +19,18 @@ const userSchema = (sequelize, DataTypes) => {
     token: {
       type: DataTypes.VIRTUAL,
       get() {
-        return jwt.sign({ username: this.username });
+        return jwt.sign({ username: this.username }, SECRET);
       }
     }
   });
 
-  model.beforeCreate(async (user) => {
+  userSchema.beforeCreate(async (user) => {
     let hashedPass = bcrypt.hash(user.password, 10);
     user.password = hashedPass;
   });
 
   // Basic AUTH: Validating strings (username, password) 
-  model.authenticateBasic = async function (username, password) {
+  userSchema.authenticateBasic = async function (username, password) {
     const user = await this.findOne({ username })
     const valid = await bcrypt.compare(password, user.password)
     if (valid) { return user; }
@@ -33,7 +38,7 @@ const userSchema = (sequelize, DataTypes) => {
   }
 
   // Bearer AUTH: Validating a token
-  model.authenticateToken = async function (token) {
+  userSchema.authenticateToken = async function (token) {
     try {
       const parsedToken = jwt.verify(token, process.env.SECRET);
       const user = this.findOne({ username: parsedToken.username })
@@ -43,8 +48,5 @@ const userSchema = (sequelize, DataTypes) => {
       throw new Error(e.message)
     }
   }
-
-  return model;
-}
 
 module.exports = userSchema;
