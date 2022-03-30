@@ -32,7 +32,7 @@ describe('Auth Router', () => {
         done();
       });
 
-      xit('can signin with basic', async (done) => {
+      it('can signin with basic', async (done) => {
 
         const response = await mockRequest.post('/signin')
           .auth(users[userType].username, users[userType].password);
@@ -45,7 +45,7 @@ describe('Auth Router', () => {
         done();
       });
 
-      xit('can signin with bearer', async (done) => {
+      it('can signin with bearer', async (done) => {
 
         // First, use basic to login to get a token
         const response = await mockRequest.post('/signin')
@@ -66,7 +66,7 @@ describe('Auth Router', () => {
     });
 
     describe('bad logins', () => {
-      xit('basic fails with known user and wrong password ', async (done) => {
+      it('basic fails with known user and wrong password ', async (done) => {
 
         const response = await mockRequest.post('/signin')
           .auth('admin', 'xyz')
@@ -78,7 +78,7 @@ describe('Auth Router', () => {
         done();
       });
 
-      xit('basic fails with unknown user', async (done) => {
+      it('basic fails with unknown user', async (done) => {
 
         const response = await mockRequest.post('/signin')
           .auth('nobody', 'xyz')
@@ -90,7 +90,7 @@ describe('Auth Router', () => {
         done();
       });
 
-      xit('bearer fails with an invalid token', async (done) => {
+      it('bearer fails with an invalid token', async (done) => {
 
         // First, use basic to login to get a token
         const bearerResponse = await mockRequest
